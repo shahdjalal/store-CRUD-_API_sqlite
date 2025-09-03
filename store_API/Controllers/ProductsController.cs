@@ -21,7 +21,7 @@ namespace store_API.Controllers
 
         [HttpGet]
 
-        public ActionResult<IEnumerable<ProductReadDto>> GetAll()
+        public ActionResult<IEnumerable<ProductReadDto>> Get()
         {
 
             var productsDTO = _appDbContext.Products.AsNoTracking().Select(product => new ProductReadDto
@@ -37,13 +37,13 @@ namespace store_API.Controllers
 
         [HttpPost]
 
-        public ActionResult CreateProduct(ProductCreateDto request)
+        public ActionResult Create(ProductCreateDto request)
         {
             var product = new Product
             {
-              Name=  request.Name,
+                Name = request.Name,
                 Description = request.Description,
-                Price = request.Price ,
+                Price = request.Price,
                 CategoryId = request.CategoryId,
 
             };
@@ -51,6 +51,76 @@ namespace store_API.Controllers
             _appDbContext.SaveChanges();
 
             return Ok();
+        }
+
+        [HttpGet("{id}")]
+
+        public ActionResult<ProductReadDto> GetById(int id)
+        {
+            var product = _appDbContext.Products.Find(id);
+
+            if (product == null)
+                return NotFound(new { message = "Product not found" });
+
+            var productDto = new ProductReadDto
+            {
+                Id = product.Id,
+                Name = product.Name,
+                Description = product.Description,
+                Price = product.Price
+            };
+
+            return Ok(productDto);
+        }
+
+
+
+
+
+
+
+        [HttpPatch("{id}")]
+        public ActionResult<IEnumerable<ProductReadDto>> Update(ProductUpdateDto request , int id)
+        {
+            var product = _appDbContext.Products.Find(id);
+
+            if (request.Name is not null)
+                product.Name = request.Name;
+
+            if (request.Description is not null)
+                product.Description = request.Description;
+
+            if (request.Price.HasValue)
+                product.Price = request.Price.Value;
+
+            _appDbContext.SaveChanges();
+
+            var readDTO = new ProductReadDto
+            {
+                Id = product.Id,
+                Name = product.Name,
+                Description = product.Description,
+                Price=product.Price 
+            };
+
+            return Ok(readDTO);
+            
+
+        }
+
+        [HttpDelete("{id}")]
+
+        public ActionResult Delete(int id)
+        {
+
+            var product = _appDbContext.Products.Find(id);
+
+            if (product is null)
+                return NotFound();
+
+            _appDbContext.Products.Remove(product);
+            _appDbContext.SaveChanges();
+            return Ok(new { message = "deleted successfully" });
         }
     }
 }

@@ -6,6 +6,7 @@ using store_API.Data;
 using store_API.DTOs.Requests;
 using store_API.DTOs.Responses;
 using store_API.Models;
+using System.Threading.Tasks;
 
 namespace store_API.Controllers
 {
@@ -22,7 +23,7 @@ namespace store_API.Controllers
 
         [HttpGet]
 
-        public ActionResult<IEnumerable<CategoryReadDto>> GetAll()
+        public ActionResult<IEnumerable<CategoryReadDto>> Get()
         {
 
             var categoriesDTO = _appDbContext.Categories.AsNoTracking().Select(category => new CategoryReadDto
@@ -34,9 +35,37 @@ namespace store_API.Controllers
             return Ok(categoriesDTO);
         }
 
+
+        [HttpGet("{id}")]
+
+        public ActionResult<CategoryReadDto>  GetById(int id)
+        {
+            var category = _appDbContext.Categories.Find(id);
+
+            if(category is null)
+            {
+                return NotFound(new { message = "category not found" });
+            }
+
+            var categoryDTO = new CategoryReadDto
+            {
+                Id=category.Id,
+                Name=category.Name
+            };
+
+            return Ok(categoryDTO);
+
+        }
+
+
+
+
+
+
+
         [HttpPost]
 
-        public ActionResult CreateCategory(CategoryCreateDto request)
+        public ActionResult Create(CategoryCreateDto request)
         {
             var category = new Category
             { 
@@ -50,6 +79,40 @@ namespace store_API.Controllers
 
 
             return Ok();
+        }
+
+        [HttpPatch("{id}")]
+        public ActionResult<IEnumerable<CategoryReadDto>> Update(CategoryUpdateDto request , int id)
+        {
+            var category = _appDbContext.Categories.Find(id);
+
+            category.Name = request.Name;
+
+            _appDbContext.SaveChanges();
+
+            var readDto = new CategoryReadDto
+            {
+                Id = category.Id,
+                Name= category.Name
+            };
+
+            return Ok(readDto);
+        }
+
+        [HttpDelete("{id}")]
+        public ActionResult Delete(int id)
+        {
+
+            var category = _appDbContext.Categories.Find(id);
+
+            if (category == null)
+                return NotFound();
+
+            _appDbContext.Categories.Remove(category);
+            _appDbContext.SaveChanges();
+
+
+            return Ok(new {message="deleted successfully"});
         }
 
 
