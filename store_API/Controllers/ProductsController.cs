@@ -30,10 +30,12 @@ namespace store_API.Controllers
                 Name = product.Name,
                 Description = product.Description,
                 Price = product.Price
+                
             }).ToList();
 
             return Ok(productsDTO);
         }
+
 
         [HttpPost]
 
@@ -80,7 +82,7 @@ namespace store_API.Controllers
 
 
         [HttpPatch("{id}")]
-        public ActionResult<IEnumerable<ProductReadDto>> Update(ProductUpdateDto request , int id)
+        public ActionResult<ProductReadDto> Update(ProductUpdateDto request , int id)
         {
             var product = _appDbContext.Products.Find(id);
 

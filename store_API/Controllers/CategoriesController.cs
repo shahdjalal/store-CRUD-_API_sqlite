@@ -36,26 +36,26 @@ namespace store_API.Controllers
         }
 
 
-        [HttpGet("{id}")]
+        //[HttpGet("{id}")]
 
-        public ActionResult<CategoryReadDto>  GetById(int id)
-        {
-            var category = _appDbContext.Categories.Find(id);
+        //public ActionResult<CategoryReadDto>  GetById(int id)
+        //{
+        //    var category = _appDbContext.Categories.Find(id);
 
-            if(category is null)
-            {
-                return NotFound(new { message = "category not found" });
-            }
+        //    if(category is null)
+        //    {
+        //        return NotFound(new { message = "category not found" });
+        //    }
 
-            var categoryDTO = new CategoryReadDto
-            {
-                Id=category.Id,
-                Name=category.Name
-            };
+        //    var categoryDTO = new CategoryReadDto
+        //    {
+        //        Id=category.Id,
+        //        Name=category.Name
+        //    };
 
-            return Ok(categoryDTO);
+        //    return Ok(categoryDTO);
 
-        }
+        //}
 
 
 
@@ -115,6 +115,34 @@ namespace store_API.Controllers
             return Ok(new {message="deleted successfully"});
         }
 
+
+        [HttpGet("{id}")]
+
+        public ActionResult<CategoryWithProductsDto> GetCategoryWithProducts(int id)
+        {
+            var category =  _appDbContext.Categories.Include(c => c.Products)
+              .AsNoTracking()
+              .FirstOrDefault(c => c.Id == id);
+
+            if (category == null)
+                return NotFound();
+
+            var dto = new CategoryWithProductsDto
+            {
+                Id = category.Id,
+                Name = category.Name,
+                Products = category.Products.Select(p => new ProductReadDto
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Description = p.Description,
+                    Price = p.Price
+                }).ToList()
+            };
+
+            return Ok(dto);
+
+        }
 
     }
 }

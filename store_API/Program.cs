@@ -23,6 +23,24 @@ namespace store_API
             {
                 options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
             });
+
+            builder.Services.AddCors(o =>
+            {
+                o.AddPolicy("Frontend", p => p
+                    .WithOrigins(
+                        "http://localhost:5176",
+                        "http://localhost:5175" ,// <-- البورت الجديد
+                        "http://localhost:5174", // (اختياري) لو أحيانًا يشتغل عليه
+                        "http://localhost:5173"  // (اختياري) احتياطي
+                    )
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                );
+            });
+
+            
+
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -35,7 +53,15 @@ namespace store_API
 
             app.UseHttpsRedirection();
 
+         
+          
+
+app.UseCors("Frontend");
+           
+
+
             app.UseAuthorization();
+
 
 
             app.MapControllers();
